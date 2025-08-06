@@ -1,0 +1,14 @@
+{
+    "name": "VanishingGames.ECC.Runtime",
+    "rootNamespace": "VanishingGames.ECC.Runtime",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
