@@ -4,8 +4,5 @@ using UnityEngine;
 
 namespace VanishingGames.ECC.Runtime
 {
-    public class EccComponent
-    {
-        
-    }
+    public class EccComponent { }
 }
