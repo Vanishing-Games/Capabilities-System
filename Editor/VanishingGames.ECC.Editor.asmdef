@@ -2,7 +2,9 @@
     "name": "VanishingGames.ECC.Editor",
     "rootNamespace": "VanishingGames.ECC.Editor",
     "references": [],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
