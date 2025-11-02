@@ -1,3 +1,5 @@
+using System;
+using R3;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -14,12 +16,13 @@ namespace VanishingGames.ECC.Runtime
             mTransform = mOwner.transform;
             mGameObject = mOwner.gameObject;
 
+            mUpdateSubscribtion = Observable
+                .EveryUpdate()
+                .Subscribe(_ => OnUpdateGo(Time.deltaTime));
+
             OnSetup();
         }
 
-        /// <summary>
-        /// Called when Component is added to EccSystem.
-        /// </summary>
         protected virtual void OnSetup() { }
 
         /// <summary>
@@ -31,16 +34,18 @@ namespace VanishingGames.ECC.Runtime
             mTransform = null;
             mGameObject = null;
 
+            mUpdateSubscribtion.Dispose();
+
             OnRemoved();
         }
 
-        /// <summary>
-        /// Called when Component is removed.
-        /// </summary>
         protected virtual void OnRemoved() { }
+
+        protected virtual void OnUpdateGo(float deltaTime) { }
 
         protected Transform mTransform;
         protected GameObject mGameObject;
         protected EccSystem mOwner;
+        private IDisposable mUpdateSubscribtion;
     }
 }

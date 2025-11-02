@@ -1,7 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 
 namespace VanishingGames.ECC.Runtime
 {
@@ -12,41 +12,70 @@ namespace VanishingGames.ECC.Runtime
         /// <summary>
         /// Called when Capability is created.
         /// </summary>
-        internal virtual void SetUp(EccSystem owner)
+        internal virtual void SetUp(EccSystem owner, bool useClassDefinedTickSettings = true)
         {
             mOwner = owner;
+            if (useClassDefinedTickSettings)
+                SetUpTickSettings();
+            OnSetup();
         }
+
+        protected abstract void OnSetup();
+
+        /// <summary>
+        /// Setup TickGroup, TickGroupOrder, Tags
+        /// </summary>
+        protected abstract void SetUpTickSettings();
 
         /// <summary>
         /// Called on every frame when Capability is NOT active.
         /// </summary>
         internal virtual bool ShouldActivate()
         {
-            return true;
+            return OnShouldActivate();
         }
+
+        protected abstract bool OnShouldActivate();
 
         /// <summary>
         /// Called on every frame when Capability IS active.
         /// </summary>
         internal virtual bool ShouldDeactivate()
         {
-            return false;
+            return OnShouldDeactivate();
         }
+
+        protected abstract bool OnShouldDeactivate();
 
         /// <summary>
         /// Called when Capability is activated.
         /// </summary>
-        internal virtual void OnActivated() { }
+        internal virtual void Activate()
+        {
+            OnActivate();
+        }
+
+        protected abstract void OnActivate();
 
         /// <summary>
         /// Called when Capability is deactivated.
         /// </summary>
-        internal virtual void OnDeactivated() { }
+        internal virtual void Deactivate()
+        {
+            OnDeactivate();
+        }
+
+        protected abstract void OnDeactivate();
 
         /// <summary>
         /// Called on every frame when Capability IS active.
         /// </summary>
-        internal virtual void OnTickActive(float deltaTime) { }
+        internal virtual void Tick(float deltaTime)
+        {
+            OnTick(deltaTime);
+        }
+
+        protected abstract void OnTick(float deltaTime);
 
         /// <summary>
         /// Called when Owner is destroyed.
@@ -54,30 +83,17 @@ namespace VanishingGames.ECC.Runtime
         internal virtual void OnOwnerDestroyed()
         {
             if (mIsActive)
-                OnDeactivated();
+                Deactivate();
         }
 
-        internal List<EccTag> Tag
-        {
-            get => mTags;
-            private set => mTags = value;
-        }
+        [ShowInInspector, OdinSerialize]
+        public EccTickGroup TickGroup { get; protected set; } = 0;
 
-        internal EccTickGroup TickGroup
-        {
-            get => mTickGroup;
-            private set => mTickGroup = value;
-        }
+        [ShowInInspector, OdinSerialize]
+        public uint TickOrderInGroup { get; protected set; } = 100;
 
-        internal uint TickGroupOrder
-        {
-            get => mTickGroupOrder;
-            private set => mTickGroupOrder = value;
-        }
-
-        protected List<EccTag> mTags;
-        protected EccTickGroup mTickGroup;
-        protected uint mTickGroupOrder = 100;
+        [ShowInInspector, OdinSerialize]
+        public List<EccTag> Tags { get; protected set; } = new();
 
         protected EccSystem mOwner;
         protected bool mIsActive;
@@ -87,7 +103,12 @@ namespace VanishingGames.ECC.Runtime
 
     public interface IEccInstigator { }
 
-    public enum EccTag { }
+    public enum EccTag
+    {
+        Move,
+        Jump,
+        Gravity,
+    }
 
     // csharpier-ignore-start
     public enum EccTickGroup

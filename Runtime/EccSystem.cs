@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,16 +9,62 @@ namespace VanishingGames.ECC.Runtime
 {
     public class EccSystem : SerializedMonoBehaviour
     {
-        public EccComponent GetEccComponent<T>()
+        public T GetEccComponent<T>()
+            where T : EccComponent
         {
-            return mRuntimeComponents.FirstOrDefault(c => c is T);
+            return mRuntimeComponents.FirstOrDefault(c => c is T) as T;
+        }
+
+        public void BlockCapabilities(IEnumerable<EccTag> tagsToBlock, IEccInstigator instigator)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(
+                $"Blocking capabilities for tags by instigator: **{instigator.GetType().Name}**"
+            );
+
+            foreach (var tag in tagsToBlock)
+            {
+                if (!mBlockers.TryGetValue(tag, out var blockers))
+                {
+                    blockers = new List<IEccInstigator>();
+                    mBlockers[tag] = blockers;
+                }
+
+                blockers.Add(instigator);
+                sb.AppendLine($"  - Tag: {tag}");
+            }
+
+            EccLogger.LogInfo(sb.ToString());
+        }
+
+        public void UnblockCapabilities(IEnumerable<EccTag> tagsToBlock, IEccInstigator instigator)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(
+                $"Unblocking capabilities for tags by instigator: **{instigator.GetType().Name}**"
+            );
+
+            foreach (var tag in tagsToBlock)
+            {
+                if (mBlockers.TryGetValue(tag, out var blockers))
+                {
+                    blockers.Remove(instigator);
+                    sb.AppendLine($"  - Tag: {tag}");
+                }
+                else
+                {
+                    EccLogger.LogError(
+                        $"Tag **{tag}** not found in blockers, but trying to unblock by instigator: **{instigator.GetType().Name}**"
+                    );
+                }
+            }
+
+            EccLogger.LogInfo(sb.ToString());
         }
 
         private void Awake()
         {
             InitDefaultSheets();
-            InitBlockers();
-
             PrintInitStatus();
         }
 
@@ -30,13 +74,17 @@ namespace VanishingGames.ECC.Runtime
             {
                 foreach (var capability in tickGroup.Value)
                 {
+                    foreach (var tag in capability.Tags)
+                        if (mBlockers.ContainsKey(tag))
+                            continue;
+
                     if (capability.IsActive())
                         capability.ShouldDeactivate();
                     else
                         capability.ShouldActivate();
 
                     if (capability.IsActive())
-                        capability.OnTickActive(Time.deltaTime);
+                        capability.Tick(Time.deltaTime);
                 }
             }
         }
@@ -50,11 +98,6 @@ namespace VanishingGames.ECC.Runtime
             {
                 PushEccSheet(sheet);
             }
-        }
-
-        private void InitBlockers()
-        {
-            mBlockers = new();
         }
 
         private void PushEccSheet(EccCapabilitySheet sheet)
@@ -76,7 +119,10 @@ namespace VanishingGames.ECC.Runtime
                 list = new();
                 mTickGroups[capability.TickGroup] = list;
             }
+
             list.Add(capability);
+            list.Sort((a, b) => a.TickOrderInGroup.CompareTo(b.TickOrderInGroup));
+
             capability.SetUp(this);
         }
 
@@ -109,22 +155,22 @@ namespace VanishingGames.ECC.Runtime
             sb.AppendLine();
 
             sb.AppendLine($"⚙️ Tick Groups: {mTickGroups.Count}");
-            foreach (var tickGroup in mTickGroups.OrderBy(x => x.Key))
+            foreach (var tickGroup in mTickGroups)
             {
                 sb.AppendLine($"  ├─ {tickGroup.Key} ({tickGroup.Value.Count} capabilities)");
-                foreach (var capability in tickGroup.Value.OrderBy(x => x.TickGroupOrder))
+                foreach (var capability in tickGroup.Value)
                 {
                     var tags =
-                        capability.Tag?.Count > 0
-                            ? $" [Tags: {string.Join(", ", capability.Tag)}]"
+                        capability.Tags?.Count > 0
+                            ? $" [Tags: {string.Join(", ", capability.Tags)}]"
                             : "";
                     sb.AppendLine(
-                        $"  │  └─ {capability.GetType().Name} (Order: {capability.TickGroupOrder}){tags}"
+                        $"  │  └─ {capability.GetType().Name} (Order: {capability.TickOrderInGroup}){tags}"
                     );
                 }
             }
             sb.AppendLine("════════════════════════════════════════");
-            Debug.Log(sb.ToString());
+            EccLogger.LogInfo(sb.ToString());
         }
 
         [OdinSerialize, ShowInInspector]
@@ -133,10 +179,10 @@ namespace VanishingGames.ECC.Runtime
         [Header("Ecc Status")]
         [Space(10)]
         [ReadOnly, ShowInInspector]
-        internal Dictionary<EccTag, List<EccCapability>> mBlockers = new();
+        internal Dictionary<EccTag, List<IEccInstigator>> mBlockers = new();
 
         [ReadOnly, ShowInInspector]
-        private Dictionary<EccTickGroup, List<EccCapability>> mTickGroups = new();
+        private SortedDictionary<EccTickGroup, List<EccCapability>> mTickGroups = new();
 
         [ReadOnly, ShowInInspector]
         private List<EccComponent> mRuntimeComponents = new();
