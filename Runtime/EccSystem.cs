@@ -111,6 +111,12 @@ namespace VanishingGames.ECC.Runtime
 
         private void PushEccSheet(EccCapabilitySheet sheet)
         {
+            if (sheet == null)
+            {
+                EccLogger.LogError("Attempted to add a null EccCapabilitySheet.");
+                return;
+            }
+
             foreach (var c in sheet.mComponents ?? Enumerable.Empty<EccComponent>())
                 PushEccComponent(c);
 
@@ -123,6 +129,12 @@ namespace VanishingGames.ECC.Runtime
 
         private void PushEccCapability(EccCapability capability)
         {
+            if (capability == null)
+            {
+                EccLogger.LogError("Attempted to add a null EccCapability.");
+                return;
+            }
+
             if (!mTickGroups.TryGetValue(capability.TickGroup, out var list))
             {
                 list = new();
@@ -137,6 +149,12 @@ namespace VanishingGames.ECC.Runtime
 
         private void PushEccComponent(EccComponent component)
         {
+            if (component == null)
+            {
+                EccLogger.LogError("Attempted to add a null EccComponent.");
+                return;
+            }
+
             mRuntimeComponents.Add(component);
             component.SetUp(this);
         }
