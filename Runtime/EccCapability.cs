@@ -43,8 +43,9 @@ namespace VanishingGames.ECC.Runtime
         /// </summary>
         internal virtual bool ShouldDeactivate()
         {
-            mIsActive = !OnShouldDeactivate();
-            return !mIsActive;
+            var shouldDeactivate = OnShouldDeactivate();
+            mIsActive = !shouldDeactivate;
+            return shouldDeactivate;
         }
 
         protected abstract bool OnShouldDeactivate();
