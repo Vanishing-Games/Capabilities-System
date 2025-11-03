@@ -68,7 +68,7 @@ namespace VanishingGames.ECC.Runtime
             PrintInitStatus();
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             foreach (var tickGroup in mTickGroups)
             {
