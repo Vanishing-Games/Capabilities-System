@@ -74,9 +74,18 @@ namespace VanishingGames.ECC.Runtime
             {
                 foreach (var capability in tickGroup.Value)
                 {
+                    bool isBlocked = false;
                     foreach (var tag in capability.Tags)
+                    {
                         if (mBlockers.ContainsKey(tag))
-                            continue;
+                        {
+                            isBlocked = true;
+                            break;
+                        }
+                    }
+
+                    if (isBlocked)
+                        continue;
 
                     if (capability.IsActive())
                         capability.ShouldDeactivate();

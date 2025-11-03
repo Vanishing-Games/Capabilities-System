@@ -32,7 +32,8 @@ namespace VanishingGames.ECC.Runtime
         /// </summary>
         internal virtual bool ShouldActivate()
         {
-            return OnShouldActivate();
+            mIsActive = OnShouldActivate();
+            return mIsActive;
         }
 
         protected abstract bool OnShouldActivate();
@@ -42,7 +43,8 @@ namespace VanishingGames.ECC.Runtime
         /// </summary>
         internal virtual bool ShouldDeactivate()
         {
-            return OnShouldDeactivate();
+            mIsActive = !OnShouldDeactivate();
+            return mIsActive;
         }
 
         protected abstract bool OnShouldDeactivate();
