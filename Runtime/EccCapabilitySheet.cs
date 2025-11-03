@@ -7,25 +7,8 @@ using UnityEngine;
 
 namespace VanishingGames.ECC.Runtime
 {
-    [ShowOdinSerializedPropertiesInInspector]
-    public class VgSerializedScriptableObject : ScriptableObject, ISerializationCallbackReceiver
-    {
-        [SerializeField, HideInInspector]
-        private SerializationData serializationData;
-
-        void ISerializationCallbackReceiver.OnBeforeSerialize()
-        {
-            UnitySerializationUtility.SerializeUnityObject(this, ref this.serializationData);
-        }
-
-        void ISerializationCallbackReceiver.OnAfterDeserialize()
-        {
-            UnitySerializationUtility.DeserializeUnityObject(this, ref this.serializationData);
-        }
-    }
-
     [CreateAssetMenu(fileName = "New EccCapabilitySheet", menuName = "ECC/Capability Sheet")]
-    public class EccCapabilitySheet : VgSerializedScriptableObject
+    public class EccCapabilitySheet : SerializedScriptableObject
     {
         [OdinSerialize, ShowInInspector]
         internal List<EccComponent> mComponents;
@@ -62,7 +45,6 @@ namespace VanishingGames.ECC.Runtime
                     grouped[capability.TickGroup].Add(new CapabilityDebugInfo(capability));
                 }
 
-                // Sort by TickGroup
                 var sortedDict = new Dictionary<EccTickGroup, List<CapabilityDebugInfo>>();
                 foreach (var kvp in grouped.OrderBy(x => x.Key))
                 {
@@ -78,14 +60,14 @@ namespace VanishingGames.ECC.Runtime
         [System.Serializable]
         private class CapabilityDebugInfo
         {
-			[ShowInInspector, HideLabel, DisplayAsString]
-			[GUIColor("GetStatusColor")]
-			public string Info { get; }
+            [ShowInInspector, HideLabel, DisplayAsString]
+            [GUIColor("GetStatusColor")]
+            public string Info { get; }
 
-			[HideInInspector]
-			public uint TickOrder { get; }
+            [HideInInspector]
+            public uint TickOrder { get; }
 
-			private bool isActive;
+            private bool isActive;
 
             public CapabilityDebugInfo(EccCapability capability)
             {
