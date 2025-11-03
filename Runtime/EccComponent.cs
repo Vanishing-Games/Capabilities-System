@@ -17,11 +17,13 @@ namespace VanishingGames.ECC.Runtime
             mGameObject = mOwner.gameObject;
 
             mUpdateSubscribtion = Observable
-                .EveryUpdate()
+                .EveryUpdate(SetFrameProvider())
                 .Subscribe(_ => OnUpdateGo(Time.deltaTime));
 
             OnSetup();
         }
+
+        protected virtual FrameProvider SetFrameProvider() => UnityFrameProvider.Update;
 
         protected virtual void OnSetup() { }
 
