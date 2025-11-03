@@ -78,14 +78,14 @@ namespace VanishingGames.ECC.Runtime
         [System.Serializable]
         private class CapabilityDebugInfo
         {
-            [ShowInInspector, HideLabel, DisplayAsString]
-            [GUIColor("GetStatusColor")]
-            public string Info { get; private set; }
+			[ShowInInspector, HideLabel, DisplayAsString]
+			[GUIColor("GetStatusColor")]
+			public string Info { get; }
 
-            [HideInInspector]
-            public uint TickOrder { get; private set; }
+			[HideInInspector]
+			public uint TickOrder { get; }
 
-            private bool isActive;
+			private bool isActive;
 
             public CapabilityDebugInfo(EccCapability capability)
             {
