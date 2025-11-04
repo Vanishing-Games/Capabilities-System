@@ -111,6 +111,7 @@ namespace VanishingGames.ECC.Runtime
         Move,
         Jump,
         Gravity,
+        CollideAndSlide,
     }
 
     // csharpier-ignore-start
