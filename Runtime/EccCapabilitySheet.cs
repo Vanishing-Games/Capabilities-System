@@ -81,7 +81,7 @@ namespace VanishingGames.ECC.Runtime
                         ? $"Tags: [{string.Join(", ", capability.Tags)}]"
                         : "No Tags";
 
-                Info = $"{status} {capabilityName} | Order: {TickOrder} | {tags}";
+                Info = $"{status} {capabilityName} || Order: {TickOrder} || {tags}";
             }
 
             private Color GetStatusColor()
