@@ -33,8 +33,7 @@ namespace VanishingGames.ECC.Runtime
         /// </summary>
         internal virtual bool ShouldActivate()
         {
-            mIsActive = OnShouldActivate();
-            return mIsActive;
+            return OnShouldActivate();
         }
 
         protected abstract bool OnShouldActivate();
@@ -44,8 +43,7 @@ namespace VanishingGames.ECC.Runtime
         /// </summary>
         internal virtual bool ShouldDeactivate()
         {
-            mIsActive = !OnShouldDeactivate();
-            return !mIsActive;
+            return OnShouldDeactivate();
         }
 
         protected abstract bool OnShouldDeactivate();
@@ -55,6 +53,7 @@ namespace VanishingGames.ECC.Runtime
         /// </summary>
         internal virtual void Activate()
         {
+            mIsActive = true;
             OnActivate();
         }
 
@@ -65,6 +64,7 @@ namespace VanishingGames.ECC.Runtime
         /// </summary>
         internal virtual void Deactivate()
         {
+            mIsActive = false;
             OnDeactivate();
         }
 
@@ -90,6 +90,9 @@ namespace VanishingGames.ECC.Runtime
         }
 
         [ShowInInspector, OdinSerialize]
+        public EccTickType TickType { get; protected set; } = EccTickType.Fixed;
+
+        [ShowInInspector, OdinSerialize]
         public EccTickGroup TickGroup { get; protected set; } = 0;
 
         [ShowInInspector, OdinSerialize]
@@ -112,6 +115,7 @@ namespace VanishingGames.ECC.Runtime
         Jump,
         Gravity,
         CollideAndSlide,
+        GeometricDepenetration,
     }
 
     // csharpier-ignore-start
@@ -127,6 +131,12 @@ namespace VanishingGames.ECC.Runtime
         BeforePhysics  = 7,
         Physics        = 8,
         AfterPhysics   = 9,
+    }
+    
+    public enum EccTickType
+    {
+        ByFrame,
+        Fixed,
     }
     // csharpier-ignore-end
 }

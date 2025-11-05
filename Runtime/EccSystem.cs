@@ -68,12 +68,25 @@ namespace VanishingGames.ECC.Runtime
             PrintInitStatus();
         }
 
+        private void Update()
+        {
+            TickCapabilitiesByType(EccTickType.ByFrame, Time.deltaTime);
+        }
+
         private void FixedUpdate()
+        {
+            TickCapabilitiesByType(EccTickType.Fixed, Time.fixedDeltaTime);
+        }
+
+        private void TickCapabilitiesByType(EccTickType tickType, float deltaTime)
         {
             foreach (var tickGroup in mTickGroups)
             {
                 foreach (var capability in tickGroup.Value)
                 {
+                    if (capability.TickType != tickType)
+                        continue;
+
                     bool isBlocked = false;
                     foreach (var tag in capability.Tags)
                     {
@@ -82,18 +95,32 @@ namespace VanishingGames.ECC.Runtime
                             isBlocked = true;
                             break;
                         }
+
+#if UNITY_EDITOR
+                        if (DebugBlockedTags.Contains(tag))
+                        {
+                            isBlocked = true;
+                            break;
+                        }
+#endif
                     }
 
                     if (isBlocked)
                         continue;
 
                     if (capability.IsActive())
-                        capability.ShouldDeactivate();
+                    {
+                        if (capability.ShouldDeactivate())
+                            capability.Deactivate();
+                    }
                     else
-                        capability.ShouldActivate();
+                    {
+                        if (capability.ShouldActivate())
+                            capability.Activate();
+                    }
 
                     if (capability.IsActive())
-                        capability.Tick(Time.deltaTime);
+                        capability.Tick(deltaTime);
                 }
             }
         }
@@ -191,8 +218,9 @@ namespace VanishingGames.ECC.Runtime
                         capability.Tags?.Count > 0
                             ? $" [Tags: {string.Join(", ", capability.Tags)}]"
                             : "";
+                    var tickType = $"[{capability.TickType}]";
                     sb.AppendLine(
-                        $"  │  └─ {capability.GetType().Name} (Order: {capability.TickOrderInGroup}){tags}"
+                        $"  │  └─ {capability.GetType().Name} {tickType} (Order: {capability.TickOrderInGroup}){tags}"
                     );
                 }
             }
@@ -202,6 +230,16 @@ namespace VanishingGames.ECC.Runtime
 
         [OdinSerialize, ShowInInspector]
         internal List<EccCapabilitySheet> mDefaultSheets = new();
+
+#if UNITY_EDITOR
+        [Header("Debug Settings")]
+        [Space(10)]
+        [InfoBox(
+            "Select tags to block for debugging purposes. These blocks are only active in the Unity Editor."
+        )]
+        [ShowInInspector]
+        public List<EccTag> DebugBlockedTags = new();
+#endif
 
         [Header("Ecc Status")]
         [Space(10)]
