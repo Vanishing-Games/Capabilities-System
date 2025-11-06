@@ -15,12 +15,16 @@ namespace VanishingGames.ECC.Runtime
             return mRuntimeComponents.FirstOrDefault(c => c is T) as T;
         }
 
+        public void BlockCapabilities(EccTag tagToBlock, IEccInstigator instigator)
+        {
+            BlockCapabilities(new[] { tagToBlock }, instigator);
+        }
+
         public void BlockCapabilities(IEnumerable<EccTag> tagsToBlock, IEccInstigator instigator)
         {
+            var instigatorName = instigator.GetType().Name;
             var sb = new StringBuilder();
-            sb.AppendLine(
-                $"Blocking capabilities for tags by instigator: **{instigator.GetType().Name}**"
-            );
+            sb.AppendLine($"Blocking capabilities for tags by instigator: **{instigatorName}**");
 
             foreach (var tag in tagsToBlock)
             {
@@ -37,12 +41,40 @@ namespace VanishingGames.ECC.Runtime
             EccLogger.LogInfo(sb.ToString());
         }
 
+        public void UnblockCapabilities(EccTag tagToBlock, IEccInstigator instigator)
+        {
+            UnblockCapabilities(new[] { tagToBlock }, instigator);
+        }
+
+        public void UnblockCapabilities(IEccInstigator instigator)
+        {
+            var instigatorName = instigator.GetType().Name;
+            var sb = new StringBuilder();
+            sb.AppendLine($"Unblocking capabilities for tags by instigator: **{instigatorName}**");
+
+            var tagsToRemove = new List<EccTag>();
+            foreach (var kvp in mBlockers)
+            {
+                if (kvp.Value.Remove(instigator))
+                {
+                    sb.AppendLine($"  - Tag: {kvp.Key}");
+
+                    if (kvp.Value.Count == 0)
+                        tagsToRemove.Add(kvp.Key);
+                }
+            }
+
+            foreach (var tag in tagsToRemove)
+                mBlockers.Remove(tag);
+
+            EccLogger.LogInfo(sb.ToString());
+        }
+
         public void UnblockCapabilities(IEnumerable<EccTag> tagsToBlock, IEccInstigator instigator)
         {
+            var instigatorName = instigator.GetType().Name;
             var sb = new StringBuilder();
-            sb.AppendLine(
-                $"Unblocking capabilities for tags by instigator: **{instigator.GetType().Name}**"
-            );
+            sb.AppendLine($"Unblocking capabilities for tags by instigator: **{instigatorName}**");
 
             foreach (var tag in tagsToBlock)
             {
@@ -50,11 +82,14 @@ namespace VanishingGames.ECC.Runtime
                 {
                     blockers.Remove(instigator);
                     sb.AppendLine($"  - Tag: {tag}");
+
+                    if (blockers.Count == 0)
+                        mBlockers.Remove(tag);
                 }
                 else
                 {
                     EccLogger.LogError(
-                        $"Tag **{tag}** not found in blockers, but trying to unblock by instigator: **{instigator.GetType().Name}**"
+                        $"Tag **{tag}** not found in blockers, but trying to unblock by instigator: **{instigatorName}**"
                     );
                 }
             }

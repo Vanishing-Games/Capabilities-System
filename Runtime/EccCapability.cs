@@ -6,7 +6,7 @@ using Sirenix.Serialization;
 
 namespace VanishingGames.ECC.Runtime
 {
-    public abstract class EccCapability
+    public abstract class EccCapability : IEccInstigator
     {
         public bool IsActive() => mIsActive;
 
@@ -109,16 +109,17 @@ namespace VanishingGames.ECC.Runtime
 
     public interface IEccInstigator { }
 
+    // csharpier-ignore-start
     public enum EccTag
     {
-        Move,
-        Jump,
-        Gravity,
-        CollideAndSlide,
-        GeometricDepenetration,
+        Move                   ,
+        Jump                   ,
+        Gravity                ,
+        CollideAndSlide        ,
+        GeometricDepenetration ,
+        GroundCheck            ,
     }
 
-    // csharpier-ignore-start
     public enum EccTickGroup
     {
         Input          = 0,
