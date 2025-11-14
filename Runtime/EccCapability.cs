@@ -118,6 +118,7 @@ namespace VanishingGames.ECC.Runtime
         CollideAndSlide        ,
         GeometricDepenetration ,
         GroundCheck            ,
+        Grab                   ,
     }
 
     public enum EccTickGroup
