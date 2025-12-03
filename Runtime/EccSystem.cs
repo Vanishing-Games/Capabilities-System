@@ -263,7 +263,7 @@ namespace VanishingGames.ECC.Runtime
             EccLogger.LogInfo(sb.ToString());
         }
 
-        [OdinSerialize, ShowInInspector]
+        [OdinSerialize, ShowInInspector, InlineEditor]
         internal List<EccCapabilitySheet> mDefaultSheets = new();
 
 #if UNITY_EDITOR
