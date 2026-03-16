@@ -122,6 +122,7 @@ namespace VanishingGames.ECC.Runtime
 		Collision              ,
         NormalState            ,
 		GrabState			   ,
+		WhistleState           ,
 		ThrowState             ,
 		DashState              ,
 		DeathState             ,
