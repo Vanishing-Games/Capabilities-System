@@ -179,13 +179,23 @@ namespace VanishingGames.ECC.Runtime
                 return;
             }
 
-            foreach (var c in sheet.mComponents ?? Enumerable.Empty<EccComponent>())
+            EccCapabilitySheet targetSheet = sheet;
+
+            // 如果启用了运行时深拷贝，且当前处于 Play 模式，则通过实例化创建副本
+            if (RuntimeDeepCopy && Application.isPlaying)
+            {
+                targetSheet = Instantiate(sheet);
+                targetSheet.name = $"{sheet.name} (Runtime Copy)";
+            }
+
+            foreach (var c in targetSheet.mComponents ?? Enumerable.Empty<EccComponent>())
                 PushEccComponent(c);
 
-            foreach (var c in sheet.mCapabilities ?? Enumerable.Empty<EccCapability>())
+            foreach (var c in targetSheet.mCapabilities ?? Enumerable.Empty<EccCapability>())
                 PushEccCapability(c);
 
-            foreach (var s in sheet.mCapabilitySheets ?? Enumerable.Empty<EccCapabilitySheet>())
+            // 递归调用：如果 targetSheet 包含嵌套的 Sheet，这里也会正常触发顶部的 Instantiate 深拷贝逻辑
+            foreach (var s in targetSheet.mCapabilitySheets ?? Enumerable.Empty<EccCapabilitySheet>())
                 PushEccSheet(s);
         }
 
@@ -262,6 +272,12 @@ namespace VanishingGames.ECC.Runtime
             sb.AppendLine("════════════════════════════════════════");
             EccLogger.LogInfo(sb.ToString());
         }
+
+        [Header("Runtime Settings")]
+        [Space(10)]
+        [InfoBox("If true, creates a deep copy of the capability sheets at runtime to prevent modifying the original ScriptableObjects.")]
+        [ShowInInspector]
+        public bool RuntimeDeepCopy = true;
 
         [OdinSerialize, ShowInInspector, InlineEditor]
         internal List<EccCapabilitySheet> mDefaultSheets = new();
