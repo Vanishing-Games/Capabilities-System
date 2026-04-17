@@ -273,6 +273,12 @@ namespace VanishingGames.ECC.Runtime
             EccLogger.LogInfo(sb.ToString());
         }
 
+        void OnDestroy()
+        {
+            foreach (var component in mRuntimeComponents)
+                component.Remove();
+        }
+
         [Header("Runtime Settings")]
         [Space(10)]
         [InfoBox("If true, creates a deep copy of the capability sheets at runtime to prevent modifying the original ScriptableObjects.")]
