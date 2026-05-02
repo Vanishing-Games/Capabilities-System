@@ -145,12 +145,12 @@ namespace VanishingGames.ECC.Runtime
 
                     if (capability.IsActive())
                     {
-                        if (capability.ShouldDeactivate())
+                        if (capability.ShouldDeactivateInternal())
                             capability.Deactivate();
                     }
                     else
                     {
-                        if (capability.ShouldActivate())
+                        if (capability.ShouldActivateInternal())
                             capability.Activate();
                     }
 

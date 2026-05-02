@@ -31,22 +31,22 @@ namespace VanishingGames.ECC.Runtime
         /// <summary>
         /// Called on every frame when Capability is NOT active.
         /// </summary>
-        internal virtual bool ShouldActivate()
+        internal virtual bool ShouldActivateInternal()
         {
-            return OnShouldActivate();
+            return ShouldActivate();
         }
 
-        protected abstract bool OnShouldActivate();
+        protected abstract bool ShouldActivate();
 
         /// <summary>
         /// Called on every frame when Capability IS active.
         /// </summary>
-        internal virtual bool ShouldDeactivate()
+        internal virtual bool ShouldDeactivateInternal()
         {
-            return OnShouldDeactivate();
+            return ShouldDeactivate();
         }
 
-        protected abstract bool OnShouldDeactivate();
+        protected abstract bool ShouldDeactivate();
 
         /// <summary>
         /// Called when Capability is activated.
